@@ -16,7 +16,7 @@
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "@econcore/types": ["packages/types/src/index"],
+      "@econcore/types": ["packages/types/src/index.ts"],
       "@econcore/types/*": ["packages/types/src/*"]
     }
   }
