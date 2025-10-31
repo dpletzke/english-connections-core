@@ -1,0 +1,32 @@
+{
+  "date": "2025-10-16",
+  "starting order": [
+    "ELBOW",
+    "LAKE",
+    "HOLD",
+    "HILL",
+    "WAFFLE",
+    "OATMEAL",
+    "CEREAL"
+  ],
+  "categories": [
+    {
+      "id": "breakfast-foods",
+      "title": "Breakfast foods",
+      "color": "green",
+      "words": ["WAFFLE", "OATMEAL", "CEREAL", "PANCAKE"]
+    },
+    {
+      "id": "breath-idioms",
+      "title": "“___ your breath”",
+      "color": "blue",
+      "words": ["HOLD", "CATCH", "SAVE", "WASTE"]
+    },
+    {
+      "id": "side-neighbor",
+      "title": "Words before \"side\"",
+      "color": "purple",
+      "words": ["HILL", "LAKE", "RIVER", "COUNTRY"]
+    }
+  ]
+}

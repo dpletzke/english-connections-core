@@ -1,0 +1,19 @@
+{
+  "name": "@econcore/content-manager",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/cli.js",
+  "bin": {
+    "econ-content": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "validate": "node dist/cli.js validate",
+    "upload": "node dist/cli.js upload",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@econcore/types": "workspace:*"
+  }
+}
