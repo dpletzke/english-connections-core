@@ -19,7 +19,7 @@ pnpm test             # reserved for validator/unit tests
 - `tsconfig.base.json` – Node16-style ESM config shared across packages.
 
 ### apps/
-- `content-manager/` – CLI workspace. Contains sample puzzles and scaffolding for the validator/upload commands. `package.json` and `tsconfig.json` are in place; `src/cli.ts` will host the hand-written validator that blocks malformed puzzles before S3 uploads.
+- `content-manager/` – CLI workspace. Provides `validate` and `upload` commands: the validator blocks malformed puzzles locally and the uploader syncs new puzzles plus `manifest.json` to S3.
 - `server/` – placeholder backend workspace with minimal config, ready for future REST API work.
 
 ### packages/
@@ -27,6 +27,14 @@ pnpm test             # reserved for validator/unit tests
 
 ### infra/
 - `cdk/` – TypeScript CDK app (generated via `cdk init`). Update the stack to provision the dedicated dev/prod S3 buckets once bucket naming/lifecycle decisions are finalized.
+
+#### S3 Buckets (planned configuration)
+- Region: `sa-east-1` (São Paulo) shared across dev and prod.
+- Bucket names: `econ-content-dev` and `econ-content-prod`.
+- Structure: `manifest.json` at the root plus all puzzle JSONs under `puzzles/`.
+- Versioning stays enabled so historical uploads are retained.
+- Lifecycle: transition objects to Standard-IA storage after 30 days; Glacier stays unused.
+- Access: objects in `puzzles/` are world-readable so `en-connect.dpletzke.dev` can fetch content directly; writes remain IAM-restricted.
 
 ### puzzles/
 - Located under `apps/content-manager/src/puzzles/`. One JSON per puzzle (e.g., `2024-01-01.json`) keeps history clean. A broken sample exists for validator testing.
@@ -39,7 +47,6 @@ pnpm test             # reserved for validator/unit tests
 - Secrets/credentials stay out of the repo; AWS auth supplied via environment or local profile.
 
 ## Open Tasks
-- Implement the runtime validator + upload logic inside `apps/content-manager/src/cli.ts`.
-- Decide S3 bucket naming conventions, regions, and lifecycle rules; update the CDK stack accordingly.
-- Add tests around the validator and upload dry-runs.
-- Document the eventual upload command usage once the CLI is complete.
+- Document AWS credential expectations and example `econ-content upload` flows.
+- Decide on a policy for remote-only puzzles (delete vs. keep) and encode it in the CLI.
+- Add more fixtures covering edge-case manifests and multi-puzzle uploads.

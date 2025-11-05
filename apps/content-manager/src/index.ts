@@ -9,3 +9,8 @@ export {
   type ValidationIssue,
   validatePuzzle,
 } from "./validation/index.js";
+export {
+  type UploadScriptOptions,
+  type UploadScriptResult,
+  runUploadScript,
+} from "./scripts/upload.js";
