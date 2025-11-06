@@ -19,22 +19,22 @@ pnpm test             # reserved for validator/unit tests
 - `tsconfig.base.json` – Node16-style ESM config shared across packages.
 
 ### apps/
-- `content-manager/` – CLI workspace. Provides `validate` and `upload` commands: the validator blocks malformed puzzles locally and the uploader syncs new puzzles plus `manifest.json` to S3.
+- `content-manager/` – CLI workspace. Provides `validate` and `upload` commands: the validator blocks malformed puzzles locally and the uploader syncs new puzzles plus `manifest.json` to S3. Copy `.example.env` to `.env` to set your AWS profile or tweak default upload flags.
 - `server/` – placeholder backend workspace with minimal config, ready for future REST API work.
 
 ### packages/
-- `types/` – publishes the canonical `ConnectionsPuzzle` TypeScript definitions (`@econcore/types`). Currently type-only; emits declarations once the build script runs.
+- `types/` – publishes the canonical `ConnectionsPuzzle` TypeScript definitions (`@econncore/types`). Currently type-only; emits declarations once the build script runs.
 
 ### infra/
 - `cdk/` – TypeScript CDK app (generated via `cdk init`). Update the stack to provision the dedicated dev/prod S3 buckets once bucket naming/lifecycle decisions are finalized.
 
 #### S3 Buckets (planned configuration)
 - Region: `sa-east-1` (São Paulo) shared across dev and prod.
-- Bucket names: `econ-content-dev` and `econ-content-prod`.
+- Bucket names: `econn-content-dev` and `econn-content-prod`.
 - Structure: `manifest.json` at the root plus all puzzle JSONs under `puzzles/`.
 - Versioning stays enabled so historical uploads are retained.
 - Lifecycle: transition objects to Standard-IA storage after 30 days; Glacier stays unused.
-- Access: objects in `puzzles/` are world-readable so `en-connect.dpletzke.dev` can fetch content directly; writes remain IAM-restricted.
+- Access: objects in `puzzles/` plus `manifest.json` are world-readable so `en-connect.dpletzke.dev` can fetch content directly; writes remain IAM-restricted.
 
 ### puzzles/
 - Located under `apps/content-manager/src/puzzles/`. One JSON per puzzle (e.g., `2024-01-01.json`) keeps history clean. A broken sample exists for validator testing.
@@ -47,6 +47,6 @@ pnpm test             # reserved for validator/unit tests
 - Secrets/credentials stay out of the repo; AWS auth supplied via environment or local profile.
 
 ## Open Tasks
-- Document AWS credential expectations and example `econ-content upload` flows.
+- Document AWS credential expectations and example `econn-content upload` flows.
 - Decide on a policy for remote-only puzzles (delete vs. keep) and encode it in the CLI.
 - Add more fixtures covering edge-case manifests and multi-puzzle uploads.

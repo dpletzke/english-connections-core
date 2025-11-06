@@ -19,6 +19,54 @@ const printUsage = (message?: string) => {
 `);
 };
 
+const parseEnvTarget = (value: string): "dev" | "prod" => {
+  if (value === "dev" || value === "prod") {
+    return value;
+  }
+  throw new Error("Environment must be either 'dev' or 'prod'.");
+};
+
+const readDefaultEnvTarget = (): "dev" | "prod" | undefined => {
+  const raw = process.env.ECON_CONTENT_DEFAULT_ENV;
+  if (!raw) {
+    return undefined;
+  }
+  try {
+    return parseEnvTarget(raw.trim());
+  } catch (error) {
+    throw new Error(
+      "Invalid ECON_CONTENT_DEFAULT_ENV value. Expected 'dev' or 'prod'.",
+    );
+  }
+};
+
+const parseBoolean = (value: string): boolean => {
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+  throw new Error(
+    "Invalid boolean value. Use one of: true, false, yes, no, on, off, 1, 0.",
+  );
+};
+
+const readDefaultDryRun = (): boolean | undefined => {
+  const raw = process.env.ECON_CONTENT_DEFAULT_DRY_RUN;
+  if (!raw) {
+    return undefined;
+  }
+  try {
+    return parseBoolean(raw);
+  } catch (error) {
+    throw new Error(
+      "Invalid ECON_CONTENT_DEFAULT_DRY_RUN value. Expected a boolean string.",
+    );
+  }
+};
+
 const parseValidateArgs = (args: string[]): ValidateScriptOptions => {
   const files: string[] = [];
 
@@ -111,10 +159,7 @@ const parseUploadArgs = (args: string[]): UploadCliOptions => {
       if (!value) {
         throw new Error("Option '--env' expects a value.");
       }
-      if (value !== "dev" && value !== "prod") {
-        throw new Error("Option '--env' must be either 'dev' or 'prod'.");
-      }
-      options.env = value;
+      options.env = parseEnvTarget(value);
       index += 1;
       continue;
     }
@@ -140,11 +185,31 @@ const runUpload = async (args: string[]) => {
     return;
   }
 
+  let resolvedEnv = options.env;
+  try {
+    resolvedEnv = resolvedEnv ?? readDefaultEnvTarget();
+  } catch (error) {
+    console.error((error as Error).message);
+    process.exit(1);
+    return;
+  }
+
+  let resolvedDryRun = options.dryRun;
+  try {
+    if (resolvedDryRun === undefined) {
+      resolvedDryRun = readDefaultDryRun();
+    }
+  } catch (error) {
+    console.error((error as Error).message);
+    process.exit(1);
+    return;
+  }
+
   try {
     const result = await runUploadScript({
-      env: options.env,
+      env: resolvedEnv,
       files: options.files.length > 0 ? options.files : undefined,
-      dryRun: options.dryRun,
+      dryRun: resolvedDryRun,
     });
 
     if (result.total === 0) {
