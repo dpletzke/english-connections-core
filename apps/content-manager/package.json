@@ -1,11 +1,11 @@
 {
-  "name": "@econcore/content-manager",
+  "name": "@econncore/content-manager",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/cli.js",
   "bin": {
-    "econ-content": "dist/cli.js"
+    "econn-content": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -16,6 +16,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.922.0",
-    "@econcore/types": "workspace:*"
+    "@econncore/types": "workspace:*"
   }
 }

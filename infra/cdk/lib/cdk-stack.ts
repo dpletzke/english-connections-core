@@ -17,8 +17,8 @@ type BucketConfig = {
 const BUCKET_TRANSITION_DAYS = 30;
 
 const BUCKETS: BucketConfig[] = [
-  { id: "Dev", bucketName: "econ-content-dev" },
-  { id: "Prod", bucketName: "econ-content-prod" },
+  { id: "Dev", bucketName: "econn-content-dev" },
+  { id: "Prod", bucketName: "econn-content-prod" },
 ];
 
 export class CdkStack extends Stack {

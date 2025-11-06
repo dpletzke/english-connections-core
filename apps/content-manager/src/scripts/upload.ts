@@ -7,18 +7,15 @@ import {
   S3Client,
   type _Object,
 } from "@aws-sdk/client-s3";
-import type { ConnectionsPuzzle } from "@econcore/types";
+import type { ConnectionsPuzzle } from "@econncore/types";
 
-import {
-  runValidateScript,
-  type ValidateScriptOptions,
-} from "./validate.js";
+import { runValidateScript, type ValidateScriptOptions } from "./validate.js";
 
 const REGION = "sa-east-1";
 
 const BUCKETS = {
-  dev: "econ-content-dev",
-  prod: "econ-content-prod",
+  dev: "econn-content-dev",
+  prod: "econn-content-prod",
 } satisfies Record<UploadTarget, string>;
 
 type UploadTarget = "dev" | "prod";

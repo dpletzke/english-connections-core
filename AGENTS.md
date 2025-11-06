@@ -6,7 +6,7 @@
 - Support a pnpm-based monorepo with shared TypeScript types and room for a future server.
 
 ## Current Pillars
-1. **Data pipeline** – Puzzle content lives outside of version control. Shared `@econcore/types` definitions exist; runtime validator still WIP.
+1. **Data pipeline** – Puzzle content lives outside of version control. Shared `@econncore/types` definitions exist; runtime validator still WIP.
 2. **Upload flow** – CLI scaffolded under `apps/content-manager` with sample puzzles. Needs validator + S3 push implementation.
 3. **Infrastructure** – AWS CDK project (`infra/cdk`) bootstrapped; stack must be tailored for final bucket names & lifecycle rules. No credentials or secrets in source.
 

@@ -4,7 +4,7 @@ This CDK workspace provisions the storage layer that backs the puzzle content CL
 
 ## Bucket Specification
 - **Region:** `sa-east-1` (São Paulo) for both dev and prod stacks.
-- **Names:** `econ-content-dev` and `econ-content-prod`.
+- **Names:** `econn-content-dev` and `econn-content-prod`.
 - **Layout:** keep a single `manifest.json` object at the root; store individual puzzles under the `puzzles/` prefix.
 - **Versioning:** enabled so older puzzle revisions remain available.
 - **Lifecycle:** transition objects to the Standard-IA storage class after 30 days to lower costs while keeping fast retrieval.

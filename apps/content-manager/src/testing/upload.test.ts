@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import {
-  ListObjectsV2Command,
-  PutObjectCommand,
-} from "@aws-sdk/client-s3";
+import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 
 import { runUploadScript } from "../scripts/upload.js";
 
@@ -41,7 +38,7 @@ describe("runUploadScript", () => {
       s3Client: client,
     });
 
-    assert.equal(result.bucket, "econ-content-dev");
+    assert.equal(result.bucket, "econn-content-dev");
     assert.equal(result.total, 1);
     assert.deepEqual(result.uploaded, ["puzzles/2024-01-01.json"]);
     assert.equal(result.manifestUploaded, true);
@@ -71,7 +68,7 @@ describe("runUploadScript", () => {
       s3Client: client,
     });
 
-    assert.equal(result.bucket, "econ-content-prod");
+    assert.equal(result.bucket, "econn-content-prod");
     assert.equal(result.total, 1);
     assert.deepEqual(result.uploaded, []);
     assert.deepEqual(result.skipped, ["puzzles/2024-01-01.json"]);

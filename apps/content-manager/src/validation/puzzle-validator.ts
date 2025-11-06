@@ -1,4 +1,4 @@
-import type { CategoryDefinition, ConnectionsPuzzle } from "@econcore/types";
+import type { CategoryDefinition, ConnectionsPuzzle } from "@econncore/types";
 import type { ValidationContext, ValidationIssue } from "./types.js";
 
 const ROOT_FIELDS = new Set<keyof ConnectionsPuzzle | "starting order">([
