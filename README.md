@@ -39,6 +39,28 @@ pnpm test             # reserved for validator/unit tests
 ### puzzles/
 - Located under `apps/content-manager/src/puzzles/`. One JSON per puzzle (e.g., `2024-01-01.json`) keeps history clean. A broken sample exists for validator testing.
 
+#### `manifest.json` format
+The uploader (`apps/content-manager/src/scripts/upload.ts`) regenerates `manifest.json` on every publish so S3 stays authoritative. The document is a simple index of puzzles:
+
+```json
+{
+  "generatedAt": "2024-10-15T12:34:56.000Z",
+  "latestPuzzle": "2024-01-01",
+  "puzzles": [
+    {
+      "date": "2024-01-01",
+      "path": "puzzles/2024-01-01.json"
+    }
+  ]
+}
+```
+
+- `generatedAt` – ISO8601 timestamp representing when the CLI built the manifest.
+- `latestPuzzle` – optional convenience field containing the final entry’s `date`.
+- `puzzles` – chronologically sorted array of `{ date, path }` pairs; `path` always matches the object key under `puzzles/`.
+
+Because the file is derived, we don’t keep a checked-in copy in sync—pull it from S3 (`aws s3 cp s3://econn-content-<env>/manifest.json -`) when needed.
+
 ## Working Agreements
 - Maintain puzzles as per-file JSON checked into git.
 - Validator must fail fast locally; no uploads of malformed data.
