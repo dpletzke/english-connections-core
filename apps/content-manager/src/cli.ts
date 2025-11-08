@@ -2,11 +2,20 @@
 
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
+
+import dotenv from "dotenv";
 
 import type { ValidateScriptOptions } from "./scripts/validate.js";
 import { runValidateScript } from "./scripts/validate.js";
 import type { UploadScriptOptions } from "./scripts/upload.js";
 import { runUploadScript } from "./scripts/upload.js";
+
+const DIST_DIR = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(DIST_DIR, "..", "..", "..");
+const DOTENV_PATH = path.join(REPO_ROOT, ".env");
+
+dotenv.config({ path: DOTENV_PATH });
 
 const printUsage = (message?: string) => {
   if (message) {
@@ -238,7 +247,9 @@ const runUpload = async (args: string[]) => {
       console.warn(
         `Warning: the bucket contains ${result.remoteOnly.length} puzzle${result.remoteOnly.length === 1 ? "" : "s"} that are not present locally.`,
       );
-      result.remoteOnly.slice(0, 5).forEach((key) => console.warn(`   • ${key}`));
+      result.remoteOnly
+        .slice(0, 5)
+        .forEach((key) => console.warn(`   • ${key}`));
       if (result.remoteOnly.length > 5) {
         console.warn("   ...");
       }
