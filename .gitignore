@@ -8,3 +8,4 @@ cdk.out/
 coverage/
 tmp/
 *.tsbuildinfo
+apps/content-manager/src/puzzles/**/*.json
