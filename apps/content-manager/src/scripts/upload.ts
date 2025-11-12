@@ -1,26 +1,19 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import {
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-  type _Object,
-} from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import type { ConnectionsPuzzle } from "@econncore/types";
 
+import {
+  BUCKETS,
+  MANIFEST_KEY,
+  PUZZLE_PREFIX,
+  REGION,
+  type ContentEnv,
+  type S3LikeClient,
+  listRemoteKeys,
+} from "./s3.js";
 import { runValidateScript, type ValidateScriptOptions } from "./validate.js";
-
-const REGION = "sa-east-1";
-
-const BUCKETS = {
-  dev: "econn-content-dev",
-  prod: "econn-content-prod",
-} as const;
-
-type ContentEnv = keyof typeof BUCKETS;
-
-type S3LikeClient = Pick<S3Client, "send">;
 
 type PuzzleEntry = {
   filePath: string;
@@ -50,40 +43,10 @@ const toPuzzleEntry = (filePath: string): PuzzleEntry => {
 
   return {
     filePath,
-    key: `puzzles/${path.basename(filePath)}`,
+    key: `${PUZZLE_PREFIX}${path.basename(filePath)}`,
     date: parsed.date,
     contents,
   };
-};
-
-const listRemoteKeys = async (
-  client: S3LikeClient,
-  bucket: string,
-  prefix: string,
-): Promise<Set<string>> => {
-  const keys = new Set<string>();
-  let continuationToken: string | undefined;
-
-  do {
-    const response = await client.send(
-      new ListObjectsV2Command({
-        Bucket: bucket,
-        Prefix: prefix,
-        ContinuationToken: continuationToken,
-      }),
-    );
-
-    (response.Contents ?? [])
-      .map((_object) => _object.Key)
-      .filter((key): key is NonNullable<_Object["Key"]> => Boolean(key))
-      .forEach((key) => keys.add(key));
-
-    continuationToken = response.IsTruncated
-      ? response.NextContinuationToken
-      : undefined;
-  } while (continuationToken);
-
-  return keys;
 };
 
 const buildManifest = (entries: PuzzleEntry[]): ManifestFile => {
@@ -151,7 +114,7 @@ export const runUploadScript = async (
   const localKeys = new Set(entries.map((entry) => entry.key));
 
   const client = options.s3Client ?? new S3Client({ region: REGION });
-  const remoteKeys = await listRemoteKeys(client, bucket, "puzzles/");
+  const remoteKeys = await listRemoteKeys(client, bucket, PUZZLE_PREFIX);
 
   const missing = entries.filter((entry) => !remoteKeys.has(entry.key));
   const alreadyPresent = entries.filter((entry) => remoteKeys.has(entry.key));
@@ -190,7 +153,7 @@ export const runUploadScript = async (
     await client.send(
       new PutObjectCommand({
         Bucket: bucket,
-        Key: "manifest.json",
+        Key: MANIFEST_KEY,
         Body: manifestBody,
         ContentType: "application/json",
         CacheControl: "public, max-age=120",

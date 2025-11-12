@@ -19,7 +19,7 @@ pnpm test             # reserved for validator/unit tests
 - `tsconfig.base.json` – Node16-style ESM config shared across packages.
 
 ### apps/
-- `content-manager/` – CLI workspace. Provides `validate` and `upload` commands: the validator blocks malformed puzzles locally and the uploader syncs new puzzles plus `manifest.json` to S3. Copy `.example.env` to `.env` to set your AWS profile or tweak default upload flags.
+- `content-manager/` – CLI workspace. Provides `validate`, `upload`, and `promote` commands: the validator blocks malformed puzzles locally, the uploader syncs new puzzles plus `manifest.json` to a chosen bucket, and the promoter copies the latest dev bucket state into prod. Copy `.example.env` to `.env` to set your AWS profile or tweak default CLI flags.
 - `server/` – placeholder backend workspace with minimal config, ready for future REST API work.
 
 ### packages/
@@ -35,6 +35,22 @@ pnpm test             # reserved for validator/unit tests
 - Versioning stays enabled so historical uploads are retained.
 - Lifecycle: transition objects to Standard-IA storage after 30 days; Glacier stays unused.
 - Access: objects in `puzzles/` plus `manifest.json` are world-readable so `en-connect.dpletzke.dev` can fetch content directly; writes remain IAM-restricted.
+
+### Dev → Prod promotion
+Once puzzles are validated and uploaded to the dev bucket, run the promote command to mirror S3 state into prod without re-reading local files:
+
+```bash
+pnpm --filter @econncore/content-manager run promote \
+  --source dev \
+  --target prod
+```
+
+- Add `--dry-run` to preview which puzzle keys would be copied and verify manifest changes.
+- Source defaults to `dev` and target to `prod`, so you can omit the flags unless you are testing alternative flows.
+- Pass `--overwrite` if you need to force-copy puzzles that already exist in prod (versioning will keep older revisions).
+- The command always rewrites `manifest.json` in the target bucket so the frontend stays aligned with the latest dev manifest.
+
+Promotion uses intra-S3 `CopyObject` calls, so it only requires bucket-level read/write permissions—no temporary files are written locally.
 
 ### puzzles/
 - Located under `apps/content-manager/src/puzzles/`. One JSON per puzzle (e.g., `2024-01-01.json`) keeps history clean. A broken sample exists for validator testing.

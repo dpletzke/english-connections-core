@@ -5,7 +5,7 @@ import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 
 import { runUploadScript } from "../scripts/upload.js";
 
-const VALID_PUZZLE = "apps/content-manager/src/puzzles/2024-01-01.json";
+const VALID_PUZZLE = "apps/content-manager/src/testing/puzzles/2024-01-01.json";
 
 class MockS3Client {
   public readonly sent: unknown[] = [];

@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 
 import dotenv from "dotenv";
 
+import type { PromoteScriptOptions } from "./scripts/promote.js";
+import { runPromoteScript } from "./scripts/promote.js";
 import type { UploadScriptOptions } from "./scripts/upload.js";
 import { runUploadScript } from "./scripts/upload.js";
 import type { ValidateScriptOptions } from "./scripts/validate.js";
@@ -25,6 +27,7 @@ const printUsage = (message?: string) => {
   console.error(`Usage:
   validate [--file <puzzle.json>]
   upload [--env <dev|prod>] [--file <puzzle.json>] [--dry-run]
+  promote [--source <dev|prod>] [--target <dev|prod>] [--overwrite] [--dry-run]
 `);
 };
 
@@ -260,6 +263,106 @@ const runUpload = async (args: string[]) => {
   }
 };
 
+type PromoteCliOptions = PromoteScriptOptions;
+
+const parsePromoteArgs = (args: string[]): PromoteCliOptions => {
+  const options: PromoteCliOptions = {};
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+
+    if (arg === "--source" || arg === "-s") {
+      const value = args[index + 1];
+      if (!value) {
+        throw new Error("Option '--source' expects a value.");
+      }
+      options.source = parseEnvTarget(value);
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--target" || arg === "-t") {
+      const value = args[index + 1];
+      if (!value) {
+        throw new Error("Option '--target' expects a value.");
+      }
+      options.target = parseEnvTarget(value);
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--dry-run") {
+      options.dryRun = true;
+      continue;
+    }
+
+    if (arg === "--overwrite") {
+      options.overwrite = true;
+      continue;
+    }
+
+    throw new Error(`Unknown option '${arg}'.`);
+  }
+
+  return options;
+};
+
+const runPromote = async (args: string[]) => {
+  let options: PromoteCliOptions;
+  try {
+    options = parsePromoteArgs(args);
+  } catch (error) {
+    printUsage((error as Error).message);
+    process.exit(1);
+    return;
+  }
+
+  try {
+    const result = await runPromoteScript(options);
+    const copiedCount = result.copied.length;
+
+    if (result.dryRun) {
+      console.log(
+        `Dry run: ${copiedCount} puzzle${copiedCount === 1 ? "" : "s"} would be copied from ${result.sourceBucket} to ${result.targetBucket}.`,
+      );
+      console.log("Manifest.json would be copied as well.");
+      if (copiedCount === 0) {
+        console.log("Nothing new to promote.");
+      }
+    } else if (copiedCount > 0) {
+      console.log(
+        `✅ Copied ${copiedCount} puzzle${copiedCount === 1 ? "" : "s"} from ${result.sourceBucket} to ${result.targetBucket}.`,
+      );
+      console.log("   Synced manifest.json.");
+    } else {
+      console.log(
+        `No new puzzles to promote; manifest synced from ${result.sourceBucket}.`,
+      );
+    }
+
+    if (!result.overwrite && result.skipped.length > 0) {
+      console.warn(
+        `Skipped ${result.skipped.length} puzzle${result.skipped.length === 1 ? "" : "s"} already present in ${result.targetBucket}. Use --overwrite to force copies.`,
+      );
+    }
+
+    if (result.remoteOnly.length > 0) {
+      console.warn(
+        `Warning: ${result.targetBucket} contains ${result.remoteOnly.length} puzzle${result.remoteOnly.length === 1 ? "" : "s"} not present in ${result.sourceBucket}.`,
+      );
+      result.remoteOnly.slice(0, 5).forEach((key) => {
+        console.warn(`   • ${key}`);
+      });
+      if (result.remoteOnly.length > 5) {
+        console.warn("   ...");
+      }
+    }
+  } catch (error) {
+    console.error((error as Error).message);
+    process.exit(1);
+  }
+};
+
 const main = async () => {
   const [, , script, ...args] = process.argv;
 
@@ -276,6 +379,11 @@ const main = async () => {
 
   if (script === "upload") {
     await runUpload(args);
+    return;
+  }
+
+  if (script === "promote") {
+    await runPromote(args);
     return;
   }
 

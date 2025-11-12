@@ -11,6 +11,7 @@
     "build": "tsc -p tsconfig.json",
     "validate": "node dist/cli.js validate",
     "upload": "node dist/cli.js upload",
+    "promote": "node dist/cli.js promote",
     "publish": "pnpm run build && node dist/cli.js upload",
     "test": "pnpm run build && node --test \"dist/testing/**/*.test.js\"",
     "typecheck": "tsc -p tsconfig.json --noEmit"
