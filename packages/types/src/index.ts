@@ -10,9 +10,5 @@ export interface CategoryDefinition {
 export interface ConnectionsPuzzle {
   date: string;
   categories: CategoryDefinition[];
-  /**
-   * Array of word identifiers representing the order the puzzle should display by default.
-   * Optional because some historical puzzles may lack the ordering metadata.
-   */
-  "starting order": string[];
+  startGrid: string[];
 }

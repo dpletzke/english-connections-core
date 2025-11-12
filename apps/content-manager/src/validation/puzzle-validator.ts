@@ -1,11 +1,7 @@
 import type { CategoryDefinition, ConnectionsPuzzle } from "@econncore/types";
 import type { ValidationContext, ValidationIssue } from "./types.js";
 
-const ROOT_FIELDS = new Set<keyof ConnectionsPuzzle | "starting order">([
-  "date",
-  "categories",
-  "starting order",
-]);
+const ROOT_FIELDS = new Set(["date", "categories", "startGrid"]);
 
 const CATEGORY_COLORS = new Set(["yellow", "green", "blue", "purple"]);
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/u;
@@ -35,7 +31,7 @@ const validateRootKeys = (
   const issues: ValidationIssue[] = [];
 
   for (const key of Object.keys(puzzle)) {
-    if (!ROOT_FIELDS.has(key as keyof ConnectionsPuzzle | "starting order")) {
+    if (!ROOT_FIELDS.has(key)) {
       issues.push({
         field: key,
         message: "Unexpected property.",
@@ -50,13 +46,13 @@ const validateStartingOrder = (
   value: unknown,
   expectedWords: Set<string>,
 ): ValidationIssue[] => {
-  const field = "starting order";
+  const field = "startGrid";
 
   if (value === undefined) {
     return [
       {
         field,
-        message: "Missing 'starting order'. Expected an array of 16 words.",
+        message: "Missing 'startGrid'. Expected an array of 16 words.",
       },
     ];
   }
@@ -65,7 +61,7 @@ const validateStartingOrder = (
     return [
       {
         field,
-        message: "Starting order must be an array of strings.",
+        message: "startGrid must be an array of strings.",
       },
     ];
   }
@@ -76,7 +72,7 @@ const validateStartingOrder = (
     if (typeof entry !== "string") {
       issues.push({
         field: fieldPath(field, index),
-        message: "Entries in starting order must be strings.",
+        message: "Entries in startGrid must be strings.",
       });
       return;
     }
@@ -85,7 +81,7 @@ const validateStartingOrder = (
     if (trimmed.length === 0) {
       issues.push({
         field: fieldPath(field, index),
-        message: "Starting order entries cannot be empty.",
+        message: "startGrid entries cannot be empty.",
       });
       return;
     }
@@ -94,7 +90,7 @@ const validateStartingOrder = (
       issues.push({
         field: fieldPath(field, index),
         message:
-          "Starting order entries should not have leading or trailing whitespace.",
+          "startGrid entries should not have leading or trailing whitespace.",
       });
     }
 
@@ -108,7 +104,7 @@ const validateStartingOrder = (
     if (seen.has(trimmed)) {
       issues.push({
         field: fieldPath(field, index),
-        message: `Duplicate word '${trimmed}' in starting order.`,
+        message: `Duplicate word '${trimmed}' in startGrid.`,
       });
     } else {
       seen.add(trimmed);
@@ -119,7 +115,7 @@ const validateStartingOrder = (
     if (seen.size !== expectedWords.size) {
       issues.push({
         field,
-        message: `Starting order should list ${expectedWords.size} unique words; found ${seen.size}.`,
+        message: `startGrid should list ${expectedWords.size} unique words; found ${seen.size}.`,
       });
     }
 
@@ -127,7 +123,7 @@ const validateStartingOrder = (
     if (missing.length > 0) {
       issues.push({
         field,
-        message: `Starting order is missing words: ${missing.join(", ")}.`,
+        message: `startGrid is missing words: ${missing.join(", ")}.`,
       });
     }
   }
@@ -138,7 +134,7 @@ const validateStartingOrder = (
   if (extras.length > 0) {
     issues.push({
       field,
-      message: `Starting order includes words that are not in any category: ${extras.join(", ")}.`,
+      message: `startGrid includes words that are not in any category: ${extras.join(", ")}.`,
     });
   }
 
@@ -395,9 +391,7 @@ export const validatePuzzle = (
   issues.push(...validateDate(puzzle.date, context));
   const categoryResult = validateCategories(puzzle.categories);
   issues.push(...categoryResult.issues);
-  issues.push(
-    ...validateStartingOrder(puzzle["starting order"], categoryResult.words),
-  );
+  issues.push(...validateStartingOrder(puzzle.startGrid, categoryResult.words));
   issues.push(...validateRootKeys(puzzle));
 
   return issues;
