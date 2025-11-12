@@ -21,6 +21,8 @@ const BUCKETS: BucketConfig[] = [
   { id: "Prod", bucketName: "econn-content-prod" },
 ];
 
+const CORS_ALLOWED_ORIGINS = ["*"];
+
 export class CdkStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
@@ -32,6 +34,15 @@ export class CdkStack extends Stack {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
         enforceSSL: true,
         objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
+        cors: [
+          {
+            allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.HEAD],
+            allowedHeaders: ["*"],
+            allowedOrigins: CORS_ALLOWED_ORIGINS,
+            exposedHeaders: ["ETag"],
+            maxAge: Duration.hours(12).toSeconds(),
+          },
+        ],
         lifecycleRules: [
           {
             id: "TransitionToStandardIa",
