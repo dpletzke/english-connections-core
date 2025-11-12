@@ -16,9 +16,11 @@ const REGION = "sa-east-1";
 const BUCKETS = {
   dev: "econn-content-dev",
   prod: "econn-content-prod",
-} satisfies Record<UploadTarget, string>;
+} as const;
 
-type UploadTarget = "dev" | "prod";
+type ContentEnv = keyof typeof BUCKETS;
+
+type S3LikeClient = Pick<S3Client, "send">;
 
 type PuzzleEntry = {
   filePath: string;
@@ -37,8 +39,6 @@ type ManifestFile = {
   latestPuzzle?: string;
   puzzles: ManifestEntry[];
 };
-
-type S3LikeClient = Pick<S3Client, "send">;
 
 const toPuzzleEntry = (filePath: string): PuzzleEntry => {
   const contents = fs.readFileSync(filePath, "utf8");
@@ -105,7 +105,7 @@ const buildManifest = (entries: PuzzleEntry[]): ManifestFile => {
 };
 
 export interface UploadScriptOptions extends ValidateScriptOptions {
-  env?: UploadTarget;
+  env?: ContentEnv;
   dryRun?: boolean;
   s3Client?: S3LikeClient;
 }
@@ -123,7 +123,7 @@ export interface UploadScriptResult {
 export const runUploadScript = async (
   options: UploadScriptOptions = {},
 ): Promise<UploadScriptResult> => {
-  const target: UploadTarget = options.env ?? "dev";
+  const target: ContentEnv = options.env ?? "dev";
   const bucket = BUCKETS[target];
   const dryRun = Boolean(options.dryRun);
 
@@ -159,6 +159,14 @@ export const runUploadScript = async (
 
   const uploaded: string[] = [];
   const skipped = alreadyPresent.map((entry) => entry.key);
+
+  if (alreadyPresent.length > 0) {
+    alreadyPresent.forEach((entry) => {
+      console.warn(
+        `Skipping '${entry.filePath}' because '${entry.key}' already exists in ${bucket}.`,
+      );
+    });
+  }
 
   if (!dryRun) {
     for (const entry of missing) {

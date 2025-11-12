@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import dotenv from "dotenv";
 
-import type { ValidateScriptOptions } from "./scripts/validate.js";
-import { runValidateScript } from "./scripts/validate.js";
 import type { UploadScriptOptions } from "./scripts/upload.js";
 import { runUploadScript } from "./scripts/upload.js";
+import type { ValidateScriptOptions } from "./scripts/validate.js";
+import { runValidateScript } from "./scripts/validate.js";
 
 const DIST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(DIST_DIR, "..", "..", "..");
