@@ -31,7 +31,12 @@ export class CdkStack extends Stack {
       const bucket = new s3.Bucket(this, `${config.id}ContentBucket`, {
         bucketName: config.bucketName,
         versioned: true,
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
+        blockPublicAccess: new s3.BlockPublicAccess({
+          blockPublicAcls: true,
+          ignorePublicAcls: true,
+          blockPublicPolicy: false,
+          restrictPublicBuckets: false,
+        }),
         enforceSSL: true,
         objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
         cors: [
