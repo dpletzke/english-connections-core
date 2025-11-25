@@ -288,6 +288,7 @@ const validateCategories = (
 
   const seenIds = new Set<string>();
   const seenWords = new Map<string, number>();
+  const colorCounts = new Map<string, number>();
 
   value.forEach((category, categoryIndex) => {
     if (!isRecord(category)) {
@@ -316,6 +317,8 @@ const validateCategories = (
     const colorIssue = validateCategoryColor(current.color, categoryIndex);
     if (colorIssue) {
       issues.push(colorIssue);
+    } else if (typeof current.color === "string") {
+      colorCounts.set(current.color, (colorCounts.get(current.color) ?? 0) + 1);
     }
 
     const wordsIssues = validateCategoryWords(
@@ -332,6 +335,17 @@ const validateCategories = (
       field: "categories",
       message: `Categories should define 16 unique words; found ${words.size}.`,
     });
+  }
+
+  for (const color of CATEGORY_COLORS) {
+    const count = colorCounts.get(color) ?? 0;
+
+    if (count !== 1) {
+      issues.push({
+        field: "categories",
+        message: `Expected exactly one '${color}' category; found ${count}.`,
+      });
+    }
   }
 
   return { issues, words };

@@ -1,0 +1,47 @@
+{
+  "date": "2024-01-02",
+  "startGrid": [
+    "ELBOW",
+    "LAKE",
+    "HOLD",
+    "HILL",
+    "WAFFLE",
+    "OATMEAL",
+    "CEREAL",
+    "PANCAKE",
+    "CATCH",
+    "SAVE",
+    "WASTE",
+    "RIVER",
+    "WRIST",
+    "ANKLE",
+    "KNEE",
+    "COUNTRY"
+  ],
+  "categories": [
+    {
+      "id": "joints",
+      "title": "Body joints",
+      "color": "green",
+      "words": ["WRIST", "ANKLE", "ELBOW", "KNEE"]
+    },
+    {
+      "id": "breakfast-foods",
+      "title": "Breakfast foods",
+      "color": "green",
+      "words": ["WAFFLE", "OATMEAL", "CEREAL", "PANCAKE"]
+    },
+    {
+      "id": "breath-idioms",
+      "title": "“___ your breath”",
+      "color": "blue",
+      "words": ["HOLD", "CATCH", "SAVE", "WASTE"]
+    },
+    {
+      "id": "side-neighbor",
+      "title": "Words before \"side\"",
+      "color": "purple",
+      "words": ["HILL", "LAKE", "RIVER", "COUNTRY"]
+    }
+  ]
+}
